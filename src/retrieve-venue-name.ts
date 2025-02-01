@@ -1,4 +1,4 @@
-// Usage: npx vite-node src/retrieve-venue.ts
+// Usage: npx vite-node src/retrieve-venue-name.ts
 // 出力したファイルは（複数候補があるときに正解がわからないので）手動で修正することを想定しています。
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -51,7 +51,7 @@ for (const venue of venues) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 }
 
-const writeFileName = "venues.json";
+const writeFileName = "venue-names.json";
 const writeFilePath = path.join(__dirname, "..", "public", writeFileName);
 
 console.debug(`write to: ${writeFilePath}`);
