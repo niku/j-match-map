@@ -71,6 +71,27 @@ console.debug(`read from: ${readFilePath}`);
 
 const doc = await fs.readFile(readFilePath, "utf-8");
 const venueNames = JSON.parse(doc) as { [x: string]: string };
+// venueNames のうち、そのままではWikipediaから値を取得できない特別なケースを手動で対応する
+// 個別ににWikipediaを開きながら存在確認していったもの
+venueNames["パナスタ"] = "パナソニックスタジアム吹田"; // "パナソニック スタジアム 吹田" から空白を除去
+venueNames["ＪＦＥス"] = "JFE晴れの国スタジアム"; // "ＪＦＥ晴れの国スタジアム" から英字を半角に変換
+venueNames["Ｕ等々力"] = "Uvanceとどろきスタジアム by Fujitsu"; // "Ｕｖａｎｃｅとどろきスタジアム　ｂｙ　Ｆｕｊｉｔｓｕ" から英字とスペースを半角に変換
+venueNames["ＮＡＣＫ"] = "NACK5スタジアム大宮"; // "ＮＡＣＫ５スタジアム大宮" から英字を半角に変換
+venueNames["ＪＩＴス"] = "JIT リサイクルインク スタジアム"; // "ＪＩＴ　リサイクルインク　スタジアム" から英字とスペースを半角に変換
+venueNames["ヤマハ"] = "ヤマハスタジアム"; // "ヤマハスタジアム（磐田）" から（磐田）を除去
+venueNames["Ｇスタ"] = "町田GIONスタジアム"; // "町田ＧＩＯＮスタジアム" から英字を半角に変換
+venueNames["アイスタ"] = "IAIスタジアム日本平"; // "ＩＡＩスタジアム日本平" から英字を半角に変換
+venueNames["サンガＳ"] = "サンガスタジアム by KYOCERA"; // "サンガスタジアム by ＫＹＯＣＥＲＡ" から英字を半角に変換
+venueNames["カシマ"] = "茨城県立カシマサッカースタジアム"; // "県立カシマサッカースタジアム" の頭に茨城を追加
+venueNames["鳴門大塚"] = "鳴門・大塚スポーツパークポカリスエットスタジアム"; // "鳴門・大塚スポーツパーク ポカリスエットスタジアム" から空白を除去
+venueNames["ピカスタ"] = "Pikaraスタジアム"; // "Ｐｉｋａｒａスタジアム" から英字を半角に変換
+venueNames["長野Ｕ"] = "長野Uスタジアム"; // "長野Ｕスタジアム" から英字を半角に変換
+venueNames["埼玉"] = "埼玉スタジアム2002"; // "埼玉スタジアム２００２" から数字を半角に変換
+venueNames["Ａｘｉｓ"] = "Axisバードスタジアム"; // "Ａｘｉｓバードスタジアム" から英字を半角に変換
+venueNames["ＮＤスタ"] = "NDソフトスタジアム山形"; // "ＮＤソフトスタジアム山形" から英字を半角に変換
+venueNames["あいづ"] = "あいづ陸上競技場"; // "会津総合運動公園あいづ陸上競技場" の頭から会津総合運動公園を除去
+delete venueNames["●未定●"]; // 未定についての座標は存在しないため削除
+
 const venueLongNames = Object.values(venueNames);
 const slicedVenueLongNames = venueLongNames.flatMap(
   (_, i, a) => (i % 50 ? [] : [a.slice(i, i + 50)]) // API が一度に受け入れ可能な最大数要素数が 50 なので、それに合わせて分割する
