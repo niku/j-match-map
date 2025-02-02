@@ -131,3 +131,51 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </table>
   </div>
 `;
+
+(async () => {
+  const groupByVenue = matches.reduce(
+    (acc: { [key: string]: typeof matches }, match) => {
+      if (!acc[match.venue]) {
+        acc[match.venue] = [];
+      }
+      acc[match.venue].push(match);
+      return acc;
+    },
+    {} as { [key: string]: typeof matches }
+  );
+
+  const features = Object.entries(groupByVenue).map(([venue, ms]) => {
+    const properties = {
+      shortName: venue,
+      longName: ms[0].venueLongName,
+      matches: ms.map((m) => {
+        return {
+          year: m.year,
+          tournaments: m.tournaments,
+          section: m.section,
+          date: m.date,
+          kickoff: m.kickoff,
+          home: m.home,
+          score: m.score,
+          away: m.away,
+          attendance: m.attendance,
+          broadcast: m.broadcast,
+        };
+      }),
+    };
+
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [ms[0].longitude, ms[0].latitude],
+      },
+      properties: properties,
+    };
+  });
+
+  const geoJSON = {
+    type: "FeatureCollection",
+    features: features,
+  };
+})();
