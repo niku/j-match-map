@@ -1,6 +1,4 @@
 body {
-  margin: 0;
-}
-#map {
-  height: 80vh;
+  display: grid;
+  grid-template-rows: 80vh auto;
 }
