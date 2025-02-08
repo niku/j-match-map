@@ -109,7 +109,7 @@ const tbody = matches.map((row) => {
     `;
 });
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
     <div>
       <table>
         <thead>
