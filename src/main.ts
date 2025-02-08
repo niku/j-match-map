@@ -192,5 +192,9 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map);
 
-  L.geoJSON(geoJSON).addTo(map);
+  L.geoJSON(geoJSON, {
+    onEachFeature(feature, layer) {
+      layer.bindTooltip(feature.properties.longName);
+    },
+  }).addTo(map);
 })();
