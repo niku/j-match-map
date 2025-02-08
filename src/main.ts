@@ -4,6 +4,9 @@ import mvp_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?ur
 import duckdb_wasm_eh from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
 import eh_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url";
 
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
     mainModule: duckdb_wasm,
@@ -87,50 +90,50 @@ const matches = (
 
 const tbody = matches.map((row) => {
   return `
-    <tr>
-      <td>${row.year}</td>
-      <td>${row.tournaments}</td>
-      <td>${row.section}</td>
-      <td>${row.date}</td>
-      <td>${row.kickoff}</td>
-      <td>${row.home}</td>
-      <td>${row.score}</td>
-      <td>${row.away}</td>
-      <td>${row.venue}</td>
-      <td>${row.venueLongName}</td>
-      <td>${row.latitude}</td>
-      <td>${row.longitude}</td>
-      <td>${row.attendance}</td>
-      <td>${row.broadcast}</td>
-    </tr>
-  `;
+      <tr>
+        <td>${row.year}</td>
+        <td>${row.tournaments}</td>
+        <td>${row.section}</td>
+        <td>${row.date}</td>
+        <td>${row.kickoff}</td>
+        <td>${row.home}</td>
+        <td>${row.score}</td>
+        <td>${row.away}</td>
+        <td>${row.venue}</td>
+        <td>${row.venueLongName}</td>
+        <td>${row.latitude}</td>
+        <td>${row.longitude}</td>
+        <td>${row.attendance}</td>
+        <td>${row.broadcast}</td>
+      </tr>
+    `;
 });
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div>
-    <table>
-      <thead>
-        <tr>
-          <th>year</th>
-          <th>tournaments</th>
-          <th>section</th>
-          <th>date</th>
-          <th>kickoff</th>
-          <th>home</th>
-          <th>score</th>
-          <th>away</th>
-          <th>venue</th>
-          <th>venueLongName</th>
-          <th>latitude</th>
-          <th>longitude</th>
-          <th>attendance</th>
-          <th>broadcast</th>
-        </tr>
-      </thead>
-      <tbody>${tbody.join("")}</tbody>
-    </table>
-  </div>
-`;
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>year</th>
+            <th>tournaments</th>
+            <th>section</th>
+            <th>date</th>
+            <th>kickoff</th>
+            <th>home</th>
+            <th>score</th>
+            <th>away</th>
+            <th>venue</th>
+            <th>venueLongName</th>
+            <th>latitude</th>
+            <th>longitude</th>
+            <th>attendance</th>
+            <th>broadcast</th>
+          </tr>
+        </thead>
+        <tbody>${tbody.join("")}</tbody>
+      </table>
+    </div>
+  `;
 
 (async () => {
   const groupByVenue = matches.reduce(
@@ -144,38 +147,50 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     {} as { [key: string]: typeof matches }
   );
 
-  const features = Object.entries(groupByVenue).map(([venue, ms]) => {
-    const properties = {
-      shortName: venue,
-      longName: ms[0].venueLongName,
-      matches: ms.map((m) => {
-        return {
-          year: m.year,
-          tournaments: m.tournaments,
-          section: m.section,
-          date: m.date,
-          kickoff: m.kickoff,
-          home: m.home,
-          score: m.score,
-          away: m.away,
-          attendance: m.attendance,
-          broadcast: m.broadcast,
-        };
-      }),
-    };
+  const features: GeoJSON.Feature[] = Object.entries(groupByVenue).map(
+    ([venue, ms]) => {
+      const properties = {
+        shortName: venue,
+        longName: ms[0].venueLongName,
+        matches: ms.map((m) => {
+          return {
+            year: m.year,
+            tournaments: m.tournaments,
+            section: m.section,
+            date: m.date,
+            kickoff: m.kickoff,
+            home: m.home,
+            score: m.score,
+            away: m.away,
+            attendance: m.attendance,
+            broadcast: m.broadcast,
+          };
+        }),
+      };
 
-    return {
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [ms[0].longitude, ms[0].latitude],
-      },
-      properties: properties,
-    };
-  });
+      return {
+        type: "Feature" as const,
+        geometry: {
+          type: "Point" as const,
+          coordinates: [ms[0].longitude, ms[0].latitude],
+        },
+        properties: properties,
+      };
+    }
+  );
 
-  const geoJSON = {
+  const geoJSON: GeoJSON.FeatureCollection = {
     type: "FeatureCollection",
     features: features,
   };
+
+  const latLng = { lat: 35.67514, lng: 139.66641 };
+  const map = L.map("map");
+  map.setView(latLng, 6);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
+
+  L.geoJSON(geoJSON).addTo(map);
 })();
