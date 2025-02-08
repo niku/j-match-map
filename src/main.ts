@@ -195,6 +195,27 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   L.geoJSON(geoJSON, {
     onEachFeature(feature, layer) {
       layer.bindTooltip(feature.properties.longName);
+      const rows = feature.properties.matches.map((match: any) => {
+        return (
+          `<tr>` +
+          // `<td>${match.year}</td>` +
+          // `<td>${match.tournaments}</td>` +
+          // `<td>${match.section}</td>` +
+          `<td>${match.date}</td>` +
+          `<td>${match.kickoff}</td>` +
+          `<td>${match.home}</td>` +
+          // `<td>${match.score}</td>` +
+          `<td>${match.away}</td>` +
+          // `<td>${match.attendance}</td>` +
+          // `<td>${match.broadcast}</td>` +
+          `</tr>`
+        );
+      });
+      layer.bindPopup(
+        `<table><thead><th>date</th><th>kickoff</th><th>home</th><th>away</th></thead>${rows.join(
+          ""
+        )}</table>`
+      );
     },
   }).addTo(map);
 })();
