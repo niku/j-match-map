@@ -135,6 +135,100 @@ document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
     </div>
   `;
 
+(() => {
+  const teams = {
+    J1: [
+      "鹿島",
+      "浦和",
+      "柏",
+      "FC東京",
+      "東京Ｖ",
+      "町田",
+      "川崎Ｆ",
+      "横浜FM",
+      "横浜FC",
+      "湘南",
+      "新潟",
+      "清水",
+      "名古屋",
+      "京都",
+      "Ｇ大阪",
+      "Ｃ大阪",
+      "神戸",
+      "岡山",
+      "広島",
+      "福岡",
+    ],
+    J2: [
+      "札幌",
+      "仙台",
+      "秋田",
+      "山形",
+      "いわき",
+      "水戸",
+      "大宮",
+      "千葉",
+      "甲府",
+      "富山",
+      "磐田",
+      "藤枝",
+      "山口",
+      "徳島",
+      "愛媛",
+      "今治",
+      "鳥栖",
+      "長崎",
+      "熊本",
+      "大分",
+    ],
+    J3: [
+      "八戸",
+      "福島",
+      "栃木SC",
+      "栃木Ｃ",
+      "群馬",
+      "相模原",
+      "松本",
+      "長野",
+      "金沢",
+      "沼津",
+      "岐阜",
+      "FC大阪",
+      "奈良",
+      "鳥取",
+      "讃岐",
+      "高知",
+      "北九州",
+      "宮崎",
+      "鹿児島",
+      "琉球",
+    ],
+  };
+
+  const teamList = Object.values(teams).reduce((acc, teams) => {
+    return acc.concat(teams);
+  }, []);
+
+  const checkboxList = teamList
+    .map((team) => {
+      return `<input class="team-selector" type="checkbox" id="${team}" name="team" checked><label for="${team}">${team}</label>`;
+    })
+    .join("");
+
+  document.querySelector<HTMLDivElement>("#condition")!.innerHTML =
+    `<div id="teams">` + checkboxList + "</div>";
+  document
+    .querySelector<HTMLDivElement>("#teams")!
+    .addEventListener("change", onChangeSelectedTeams);
+
+  function onChangeSelectedTeams(_event: Event) {
+    const selectedTeams = Array.from(
+      document.querySelectorAll('input[name="team"]:checked')
+    ).map((x) => x.id);
+    console.log(selectedTeams);
+  }
+})();
+
 (async () => {
   const groupByVenue = matches.reduce(
     (acc: { [key: string]: typeof matches }, match) => {
