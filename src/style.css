@@ -1,4 +1,9 @@
-body {
+#app {
   display: grid;
-  grid-template-rows: 80vh auto;
+  grid-template-columns: 1fr 1fr;
+}
+
+#result {
+  display: grid;
+  grid-template-rows: 800px auto;
 }
