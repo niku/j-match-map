@@ -62,31 +62,38 @@ declare global {
 window.c = c;
 
 // show table
-const matches = (
-  await c.query(
-    `
-  SELECT
-    matches.year,
-    matches.tournaments,
-    matches.section,
-    matches.date,
-    matches.kickoff,
-    matches.home,
-    matches.score,
-    matches.away,
-    matches.venue,
-    venues.longName AS venueLongName,
-    venues.lat AS latitude,
-    venues.lon AS longitude,
-    matches.attendance,
-    matches.broadcast
-  FROM matches
-  JOIN venues ON matches.venue = venues.shortName
-`
-  )
-)
+const matches = (await c.query(selectMatchesSQL([])))
   .toArray()
   .map((row) => row.toJSON());
+
+function selectMatchesSQL(teams: string[]): string {
+  const selectSQL = `
+    SELECT
+      matches.year,
+      matches.tournaments,
+      matches.section,
+      matches.date,
+      matches.kickoff,
+      matches.home,
+      matches.score,
+      matches.away,
+      matches.venue,
+      venues.longName AS venueLongName,
+      venues.lat AS latitude,
+      venues.lon AS longitude,
+      matches.attendance,
+      matches.broadcast
+    FROM matches
+    JOIN venues ON matches.venue = venues.shortName
+  `;
+  if (teams.length === 0) {
+    return selectSQL;
+  } else {
+    const param = teams.map((team) => `'${team}'`).join(", ");
+    const whereClause = `WHERE matches.home IN (${param}) OR matches.away IN (${param})`;
+    return selectSQL + whereClause;
+  }
+}
 
 const tbody = matches.map((row) => {
   return `
@@ -220,14 +227,16 @@ document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
   document
     .querySelector<HTMLDivElement>("#teams")!
     .addEventListener("change", onChangeSelectedTeams);
-
-  function onChangeSelectedTeams(_event: Event) {
-    const selectedTeams = Array.from(
-      document.querySelectorAll('input[name="team"]:checked')
-    ).map((x) => x.id);
-    console.log(selectedTeams);
-  }
 })();
+
+async function onChangeSelectedTeams(_event: Event) {
+  const selectedTeams = Array.from(
+    document.querySelectorAll('input[name="team"]:checked')
+  ).map((x) => x.id);
+  const sql = selectMatchesSQL(selectedTeams);
+  const matches = (await c.query(sql)).toArray().map((row) => row.toJSON());
+  console.log(matches);
+}
 
 (async () => {
   const groupByVenue = matches.reduce(
