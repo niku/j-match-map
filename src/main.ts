@@ -94,7 +94,7 @@ function selectMatchesSQL(teams: string[]): string {
 function renderTable(matches: any[]) {
   const tbody = matches.map((row) => {
     return `
-        <tr>
+        <tr data-venue="${row.venue}">
           <td>${row.year}</td>
           <td>${row.tournaments}</td>
           <td>${row.section}</td>
@@ -128,6 +128,30 @@ function renderTable(matches: any[]) {
         </table>
       </div>
     `;
+
+  // TOOD: 毎回やったらイベントリスナーが重複していくんだっけ？
+  document
+    .querySelectorAll<HTMLTableRowElement>("#table tbody tr")!
+    .forEach((tr) => {
+      tr.addEventListener("click", onClickTr);
+    });
+}
+
+function onClickTr(event: Event) {
+  const tr = (event.currentTarget as HTMLElement).closest("tr");
+  if (tr) {
+    const venue = tr.getAttribute("data-venue");
+    geoJSONData.eachLayer((layer) => {
+      layer.closePopup(); // close all popups
+    });
+    geoJSONData.eachLayer((layer) => {
+      const feature = (layer as L.GeoJSON).feature;
+      const properties = (feature as GeoJSON.Feature).properties;
+      if (properties!.shortName === venue) {
+        layer.openPopup();
+      }
+    });
+  }
 }
 
 function renderCondition() {
