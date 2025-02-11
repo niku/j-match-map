@@ -104,12 +104,7 @@ function renderTable(matches: any[]) {
           <td>${row.home}</td>
           <td>${row.score}</td>
           <td>${row.away}</td>
-          <td>${row.venue}</td>
           <td>${row.venueLongName}</td>
-          <td>${row.latitude}</td>
-          <td>${row.longitude}</td>
-          <td>${row.attendance}</td>
-          <td>${row.broadcast}</td>
         </tr>
       `;
   });
@@ -127,12 +122,7 @@ function renderTable(matches: any[]) {
               <th>home</th>
               <th>score</th>
               <th>away</th>
-              <th>venue</th>
               <th>venueLongName</th>
-              <th>latitude</th>
-              <th>longitude</th>
-              <th>attendance</th>
-              <th>broadcast</th>
             </tr>
           </thead>
           <tbody>${tbody.join("")}</tbody>
