@@ -141,7 +141,7 @@ function renderTable(matches: any[]) {
     `;
 }
 
-(() => {
+function renderCondition() {
   const teams = {
     J1: [
       "鹿島",
@@ -221,12 +221,64 @@ function renderTable(matches: any[]) {
     })
     .join("");
 
-  document.querySelector<HTMLDivElement>("#condition")!.innerHTML =
-    `<div id="teams">` + checkboxList + "</div>";
+  document.querySelector<HTMLDivElement>("#condition")!.innerHTML = `
+    <button id="clear">Clear</button>
+    <button id="select-all">Select all</button>
+    <button id="select-j1">Select J1</button>
+    <button id="select-j2">Select J2</button>
+    <button id="select-j3">Celect J3</button>
+    <div id="teams">${checkboxList}</div>`;
+  document
+    .querySelector<HTMLButtonElement>("#clear")!
+    .addEventListener("click", () => {
+      document
+        .querySelectorAll<HTMLInputElement>(".team-selector")
+        .forEach((x) => (x.checked = false));
+      onChangeSelectedTeams();
+    });
+  document
+    .querySelector<HTMLButtonElement>("#select-all")!
+    .addEventListener("click", () => {
+      document
+        .querySelectorAll<HTMLInputElement>(".team-selector")
+        .forEach((x) => (x.checked = true));
+      onChangeSelectedTeams();
+    });
+  document
+    .querySelector<HTMLButtonElement>("#select-j1")!
+    .addEventListener("click", () => {
+      document
+        .querySelectorAll<HTMLInputElement>(
+          teams["J1"].map((x) => `#${x}`).join(",")
+        )
+        .forEach((x) => (x.checked = true));
+      onChangeSelectedTeams();
+    });
+  document
+    .querySelector<HTMLButtonElement>("#select-j2")!
+    .addEventListener("click", () => {
+      document
+        .querySelectorAll<HTMLInputElement>(
+          teams["J2"].map((x) => `#${x}`).join(",")
+        )
+        .forEach((x) => (x.checked = true));
+      onChangeSelectedTeams();
+    });
+  document
+    .querySelector<HTMLButtonElement>("#select-j3")!
+    .addEventListener("click", () => {
+      document
+        .querySelectorAll<HTMLInputElement>(
+          teams["J3"].map((x) => `#${x}`).join(",")
+        )
+        .forEach((x) => (x.checked = true));
+      onChangeSelectedTeams();
+    });
+
   document
     .querySelector<HTMLDivElement>("#teams")!
     .addEventListener("change", onChangeSelectedTeams);
-})();
+}
 
 async function onChangeSelectedTeams() {
   const selectedTeams = Array.from(
@@ -331,4 +383,5 @@ function renderMap(geoJSON: GeoJSON.FeatureCollection) {
   }).addTo(map);
 }
 
+renderCondition();
 onChangeSelectedTeams();
