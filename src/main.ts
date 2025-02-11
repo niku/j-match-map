@@ -369,6 +369,13 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
+map.on("popupopen", (e) => {
+  // popupを開いたときに、地図の中心に位置させる
+  // https://stackoverflow.com/a/23960984/1291022
+  const px = map.project(e.target._popup._latlng);
+  px.y -= e.target._popup._container.clientHeight / 2;
+  map.panTo(map.unproject(px), { animate: true });
+});
 
 let geoJSONData = L.geoJSON();
 
