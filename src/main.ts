@@ -62,6 +62,9 @@ declare global {
 window.c = c;
 
 function selectMatchesSQL(teams: string[]): string {
+  if (teams.length === 0) {
+    throw new Error("assume teams is not empty");
+  }
   const selectSQL = `
     SELECT
       matches.year,
@@ -83,13 +86,9 @@ function selectMatchesSQL(teams: string[]): string {
     JOIN venues ON matches.venue = venues.shortName
   `;
   const orderClause = `ORDER BY parsedDate ASC, kickoff ASC, tournaments ASC, section ASC`;
-  if (teams.length === 0) {
-    return selectSQL + " " + orderClause;
-  } else {
-    const param = teams.map((team) => `'${team}'`).join(", ");
-    const whereClause = `WHERE matches.home IN (${param}) OR matches.away IN (${param})`;
-    return selectSQL + " " + whereClause + " " + orderClause;
-  }
+  const param = teams.map((team) => `'${team}'`).join(", ");
+  const whereClause = `WHERE matches.home IN (${param}) OR matches.away IN (${param})`;
+  return selectSQL + " " + whereClause + " " + orderClause;
 }
 
 function renderTable(matches: any[]) {
@@ -274,8 +273,14 @@ async function onChangeSelectedTeams() {
   const selectedTeams = Array.from(
     document.querySelectorAll('input[name="team"]:checked')
   ).map((x) => x.id);
-  const sql = selectMatchesSQL(selectedTeams);
-  const matches = (await c.query(sql)).toArray().map((row) => row.toJSON());
+
+  let matches: any[];
+  if (selectedTeams.length === 0) {
+    matches = [];
+  } else {
+    const sql = selectMatchesSQL(selectedTeams);
+    matches = (await c.query(sql)).toArray().map((row) => row.toJSON());
+  }
   const geoJSON = makeMatchesGeoJSON(matches);
   renderMap(geoJSON);
   renderTable(matches);
