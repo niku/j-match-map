@@ -77,16 +77,18 @@ function selectMatchesSQL(teams: string[]): string {
       venues.lat AS latitude,
       venues.lon AS longitude,
       matches.attendance,
-      matches.broadcast
+      matches.broadcast,
+      strptime(regexp_extract(date, '(\\d+/\\d+)'), '%m/%d') as parsedDate -- for sorting
     FROM matches
     JOIN venues ON matches.venue = venues.shortName
   `;
+  const orderClause = `ORDER BY parsedDate ASC, kickoff ASC, tournaments ASC, section ASC`;
   if (teams.length === 0) {
-    return selectSQL;
+    return selectSQL + " " + orderClause;
   } else {
     const param = teams.map((team) => `'${team}'`).join(", ");
     const whereClause = `WHERE matches.home IN (${param}) OR matches.away IN (${param})`;
-    return selectSQL + whereClause;
+    return selectSQL + " " + whereClause + " " + orderClause;
   }
 }
 
