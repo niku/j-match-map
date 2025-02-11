@@ -229,16 +229,17 @@ document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
     .addEventListener("change", onChangeSelectedTeams);
 })();
 
-async function onChangeSelectedTeams(_event: Event) {
+async function onChangeSelectedTeams() {
   const selectedTeams = Array.from(
     document.querySelectorAll('input[name="team"]:checked')
   ).map((x) => x.id);
   const sql = selectMatchesSQL(selectedTeams);
   const matches = (await c.query(sql)).toArray().map((row) => row.toJSON());
-  console.log(matches);
+  const geoJSON = makeMatchesGeoJSON(matches);
+  renderMap(geoJSON);
 }
 
-(async () => {
+function makeMatchesGeoJSON(matches: any[]) {
   const groupByVenue = matches.reduce(
     (acc: { [key: string]: typeof matches }, match) => {
       if (!acc[match.venue]) {
@@ -287,15 +288,22 @@ async function onChangeSelectedTeams(_event: Event) {
     features: features,
   };
 
-  const latLng = { lat: 35.67514, lng: 139.66641 };
-  const map = L.map("map");
-  map.setView(latLng, 6);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map);
+  return geoJSON;
+}
 
-  L.geoJSON(geoJSON, {
+const latLng = { lat: 35.67514, lng: 139.66641 };
+const map = L.map("map");
+map.setView(latLng, 6);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution:
+    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+}).addTo(map);
+
+let geoJSONData = L.geoJSON();
+
+function renderMap(geoJSON: GeoJSON.FeatureCollection) {
+  map.removeLayer(geoJSONData);
+  geoJSONData = L.geoJSON(geoJSON, {
     onEachFeature(feature, layer) {
       layer.bindTooltip(feature.properties.longName);
       const rows = feature.properties.matches.map((match: any) => {
@@ -321,4 +329,6 @@ async function onChangeSelectedTeams(_event: Event) {
       );
     },
   }).addTo(map);
-})();
+}
+
+onChangeSelectedTeams();
