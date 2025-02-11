@@ -61,11 +61,6 @@ declare global {
 }
 window.c = c;
 
-// show table
-const matches = (await c.query(selectMatchesSQL([])))
-  .toArray()
-  .map((row) => row.toJSON());
-
 function selectMatchesSQL(teams: string[]): string {
   const selectSQL = `
     SELECT
@@ -95,52 +90,54 @@ function selectMatchesSQL(teams: string[]): string {
   }
 }
 
-const tbody = matches.map((row) => {
-  return `
-      <tr>
-        <td>${row.year}</td>
-        <td>${row.tournaments}</td>
-        <td>${row.section}</td>
-        <td>${row.date}</td>
-        <td>${row.kickoff}</td>
-        <td>${row.home}</td>
-        <td>${row.score}</td>
-        <td>${row.away}</td>
-        <td>${row.venue}</td>
-        <td>${row.venueLongName}</td>
-        <td>${row.latitude}</td>
-        <td>${row.longitude}</td>
-        <td>${row.attendance}</td>
-        <td>${row.broadcast}</td>
-      </tr>
-    `;
-});
+function renderTable(matches: any[]) {
+  const tbody = matches.map((row) => {
+    return `
+        <tr>
+          <td>${row.year}</td>
+          <td>${row.tournaments}</td>
+          <td>${row.section}</td>
+          <td>${row.date}</td>
+          <td>${row.kickoff}</td>
+          <td>${row.home}</td>
+          <td>${row.score}</td>
+          <td>${row.away}</td>
+          <td>${row.venue}</td>
+          <td>${row.venueLongName}</td>
+          <td>${row.latitude}</td>
+          <td>${row.longitude}</td>
+          <td>${row.attendance}</td>
+          <td>${row.broadcast}</td>
+        </tr>
+      `;
+  });
 
-document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>year</th>
-            <th>tournaments</th>
-            <th>section</th>
-            <th>date</th>
-            <th>kickoff</th>
-            <th>home</th>
-            <th>score</th>
-            <th>away</th>
-            <th>venue</th>
-            <th>venueLongName</th>
-            <th>latitude</th>
-            <th>longitude</th>
-            <th>attendance</th>
-            <th>broadcast</th>
-          </tr>
-        </thead>
-        <tbody>${tbody.join("")}</tbody>
-      </table>
-    </div>
-  `;
+  document.querySelector<HTMLDivElement>("#table")!.innerHTML = `
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th>year</th>
+              <th>tournaments</th>
+              <th>section</th>
+              <th>date</th>
+              <th>kickoff</th>
+              <th>home</th>
+              <th>score</th>
+              <th>away</th>
+              <th>venue</th>
+              <th>venueLongName</th>
+              <th>latitude</th>
+              <th>longitude</th>
+              <th>attendance</th>
+              <th>broadcast</th>
+            </tr>
+          </thead>
+          <tbody>${tbody.join("")}</tbody>
+        </table>
+      </div>
+    `;
+}
 
 (() => {
   const teams = {
@@ -237,6 +234,7 @@ async function onChangeSelectedTeams() {
   const matches = (await c.query(sql)).toArray().map((row) => row.toJSON());
   const geoJSON = makeMatchesGeoJSON(matches);
   renderMap(geoJSON);
+  renderTable(matches);
 }
 
 function makeMatchesGeoJSON(matches: any[]) {
